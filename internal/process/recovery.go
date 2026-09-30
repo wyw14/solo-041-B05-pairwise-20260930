@@ -60,6 +60,18 @@ func (p *Plant) ApplyRecovered(ctx context.Context, event model.Event) error {
 			return err
 		}
 		if err := p.devices.Publish(ctx, command); err != nil {
+			// During replay an older generation/revision can surface after a
+			// newer one has already been rebuilt. That is expected and must
+			// not abort recovery.
+			if !errors.Is(err, model.ErrStaleDeviceCommand) && !errors.Is(err, model.ErrDeviceCommandConflict) {
+				return err
+			}
+		}
+	}
+	if event.Kind == model.EventDosingChanged {
+		// Rebuild the dosing ledger and device bus from the persisted change
+		// without appending a new event or re-driving the device.
+		if err := p.dosing.ApplyRecovered(ctx, event); err != nil {
 			return err
 		}
 	}
