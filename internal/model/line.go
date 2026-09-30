@@ -78,6 +78,21 @@ func (s LineState) Isolate(sequence uint64, now time.Time) LineState {
 	return s
 }
 
+// IsolateAt moves the line into emergency at a specific, already-decided
+// generation. Unlike Isolate it does not bump the generation, so replaying an
+// emergency event during recovery converges on the same generation instead of
+// advancing it on every restart.
+func (s LineState) IsolateAt(generation, sequence uint64, now time.Time) LineState {
+	if generation > s.Generation {
+		s.Generation = generation
+	}
+	s.Stage = StageIsolated
+	s.Emergency = true
+	s.LastEventSeq = sequence
+	s.UpdatedAt = now.UTC()
+	return s
+}
+
 func (s LineState) Clone() LineState {
 	return s
 }

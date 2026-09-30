@@ -34,7 +34,7 @@ func (p *Plant) EmergencyStop(ctx context.Context, lineID model.LineID, reason s
 		return model.LineState{}, err
 	}
 	p.mu.Lock()
-	state = p.lines[lineID].Isolate(persisted.Sequence, now)
+	state = p.lines[lineID].IsolateAt(record.Generation, persisted.Sequence, now)
 	p.lines[lineID] = state
 	p.mu.Unlock()
 	p.devices.StopLine(lineID, state.Generation)

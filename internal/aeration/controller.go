@@ -44,7 +44,7 @@ func (c *Controller) SubmitWindow(ctx context.Context, lineID model.LineID, basi
 	} else if window.Average > 3.5 {
 		target = 28
 	}
-	command, err := model.NewDeviceCommand(lineID, uuid.New(), "blower-"+basinID, model.DeviceBlower, generation, "set", now)
+	command, err := model.NewDeviceCommand(lineID, uuid.New(), "blower-"+basinID, model.DeviceBlower, generation, 1, "set", now)
 	if err != nil {
 		return Window{}, nil, err
 	}
